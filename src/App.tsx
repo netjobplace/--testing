@@ -21,6 +21,24 @@ function App() {
     setName(e.target.value)
   }
 
+  // load timestamps
+  const [times, setTimes] = useState<Map<string, string>>(() => {
+    let saved = localStorage.getItem("times")
+    return new Map<string, string>(Object.entries(saved ? JSON.parse(saved) : {}))
+  })
+
+  // save timestamps
+  useEffect(() => {
+    localStorage.setItem("times", JSON.stringify(Object.fromEntries(times)))
+  }, [times])
+
+  const [timeInput, setTimeInput] = useState("")
+
+  function saveTime() {
+    const timestamp = Date.now().toString()
+    setTimes(previousTimes => new Map(previousTimes).set(timestamp, timeInput))
+  }
+
   return (
     <div className="App">
       <header className="App-header">
@@ -30,6 +48,22 @@ function App() {
         </p>
         <p> {name} </p>
         <input type="text" onChange={nameChange}/>
+        <p> Enter text to save here: </p>
+        <input
+          type="text"
+          id="timeInput"
+          value={timeInput}
+          onChange={e => setTimeInput(e.target.value)}
+        />
+        <button type="button" onClick={saveTime}>Save time</button>
+        
+        <p> Saved times: </p>
+          <ul>
+            {Array.from(times, ([timestamp, text]) => (
+              <li key={timestamp}>{timestamp}: {text}</li>
+            ))}
+          </ul>
+          
         <a
           className="App-link"
           href="https://reactjs.org"
